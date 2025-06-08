@@ -1,38 +1,27 @@
-import 'package:aetherium_movil/home.dart';
+import 'package:aetherium_movil/presentation/home.dart';
+import 'package:aetherium_movil/providers/theme_provider.dart';
+import 'package:aetherium_movil/theme/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(ProviderScope(child: const MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
+  
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
     return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
-        scaffoldBackgroundColor: Colors.lightGreenAccent.shade700,
-        textTheme: TextTheme(
-          displayLarge: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-          titleLarge: GoogleFonts.oswald(
-            fontSize: 30,
-            fontStyle: FontStyle.italic,
-          ),
-          bodyMedium: GoogleFonts.merriweather(),
-          displaySmall: GoogleFonts.pacifico(),
-        ),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
       home: Home(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
