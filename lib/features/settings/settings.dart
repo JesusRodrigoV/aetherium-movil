@@ -1,4 +1,4 @@
-import 'package:aetherium_movil/providers/theme_provider.dart';
+import 'package:aetherium_movil/core/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,7 +17,6 @@ class Settings extends ConsumerWidget {
                 Brightness.dark);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Configuración')),
       body: ListView(
         children: [
           Padding(

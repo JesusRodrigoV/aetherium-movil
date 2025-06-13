@@ -1,8 +1,10 @@
-import 'package:aetherium_movil/presentation/home.dart';
-import 'package:aetherium_movil/providers/theme_provider.dart';
-import 'package:aetherium_movil/theme/themes.dart';
+import 'package:aetherium_movil/core/providers/theme_provider.dart';
+import 'package:aetherium_movil/core/theme/themes.dart';
+import 'package:aetherium_movil/home.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,8 +22,20 @@ class MainApp extends ConsumerWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es'),
+        Locale('en'),
+      ],
       home: Home(),
       debugShowCheckedModeBanner: false,
     );
   }
+}
+
+class GlobalWidgetsLocalizations {
 }
