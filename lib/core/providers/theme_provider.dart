@@ -26,12 +26,15 @@ class ThemeProvider extends StateNotifier<ThemeMode> {
   }
 }
 
-final themeModeProvider = StateNotifierProvider<ThemeProvider, ThemeMode>((ref) => ThemeProvider());
+final themeModeProvider = StateNotifierProvider<ThemeProvider, ThemeMode>(
+  (ref) => ThemeProvider(),
+);
 
 final isDarkModeProvider = Provider<bool>((ref) {
   final themeMode = ref.watch(themeModeProvider);
   if (themeMode == ThemeMode.system) {
-    final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    final brightness =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
     return brightness == Brightness.dark;
   }
   return themeMode == ThemeMode.dark;
