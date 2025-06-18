@@ -41,37 +41,6 @@ class _HomeState extends State<Home> {
     Navigator.pop(context);
   }
 
-  void _handleLogout() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Cerrar sesión'),
-            content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Cierra el diálogo
-                  Navigator.pop(context); // Cierra el drawer
-                  // TODO: Implementar lógica de logout (limpiar token, navegar a login)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sesión cerrada')),
-                  );
-                },
-                child: const Text(
-                  'Cerrar sesión',
-                  style: TextStyle(color: Colors.redAccent),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -201,58 +170,10 @@ class _HomeState extends State<Home> {
                   isActive: _currentPage == 1,
                   onTap: () => _navigateToPage(1),
                 ),
-                const SizedBox(height: 4),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.person_outline,
-                  activeIcon: Icons.person,
-                  title: 'Perfil',
-                  onTap: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Perfil no implementado')),
-                    );
-                  },
-                ),
-                const SizedBox(height: 4),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.notifications_outlined,
-                  activeIcon: Icons.notifications,
-                  title: 'Notificaciones',
-                  onTap: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Notificaciones no implementadas'),
-                      ),
-                    );
-                  },
-                ),
               ],
             ),
           ),
           const Divider(thickness: 1, height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: _buildDrawerItem(
-              context,
-              icon: Icons.logout_outlined,
-              title: 'Cerrar sesión',
-              isLogout: true,
-              onTap: _handleLogout,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(onPressed: () {}, child: const Text('Ayuda')),
-              ],
-            ),
-          ),
         ],
       ),
     );

@@ -22,6 +22,8 @@ dependencies:
     sdk: flutter
   intl: any
   freezed_annotation: ^3.0.0
+  sqflite: ^2.4.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

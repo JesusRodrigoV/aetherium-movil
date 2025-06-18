@@ -1,67 +1,95 @@
 import 'dart:convert';
-
 import 'package:aetherium_movil/core/models/note.dart';
+import 'package:aetherium_movil/core/providers/list_notes_provider.dart';
+import 'package:aetherium_movil/features/notes/data/note_repository.dart';
 import 'package:aetherium_movil/features/notes/providers/controllers_provider.dart';
 import 'package:aetherium_movil/features/notes/states/note_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class NoteNotifier extends StateNotifier<NoteState> {
-  final Ref ref;
+part 'note_notifier.g.dart';
 
-  NoteNotifier(this.ref)
-      : super(NoteState(title: '', content: jsonEncode(Document().toDelta().toJson())));
+@riverpod
+class NoteNotifier extends _$NoteNotifier {
+  @override
+  NoteState build({Note? note}) {
+    return NoteState.fromNote(note);
+  }
+
+  void initializeControllers(NoteControllers controllers) {
+    // Limpiar listeners antiguos primero
+    controllers.titleController.removeListener(_updateTitleListener);
+    controllers.quillController.removeListener(_updateContentListener);
+
+    // Configurar estado inicial
+    controllers.titleController.text = state.title;
+    if (state.content.isNotEmpty) {
+      try {
+        controllers.quillController.document = Document.fromJson(
+          jsonDecode(state.content),
+        );
+      } catch (_) {
+        controllers.quillController.document = Document();
+      }
+    }
+
+    // Añadir nuevos listeners
+    controllers.titleController.addListener(_updateTitleListener);
+    controllers.quillController.addListener(_updateContentListener);
+
+    // Limpiar al destruir
+    ref.onDispose(() {
+      controllers.titleController.removeListener(_updateTitleListener);
+      controllers.quillController.removeListener(_updateContentListener);
+    });
+  }
+
+  void _updateTitleListener() {
+    if (!ref.mounted) return; // ¡Importante!
+    final controllers = ref.read(controllersProvider);
+    updateTitle(controllers.titleController.text);
+  }
+
+  void _updateContentListener() {
+    if (!ref.mounted) return; // ¡Importante!
+    final controllers = ref.read(controllersProvider);
+    updateContent(controllers.quillController.document);
+  }
 
   void updateTitle(String title) {
-    state = state.copyWith(title: title);
+    if (ref.mounted) {
+      state = state.copyWith(title: title);
+    }
   }
 
   void updateContent(Document document) {
-    state = state.copyWith(content: jsonEncode(document.toDelta().toJson()));
+    if (ref.mounted) {
+      state = state.copyWith(content: jsonEncode(document.toDelta().toJson()));
+    }
   }
 
-  void saveNote(BuildContext context) {
+  Future<Note> saveNote() async {
     if (state.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La nota está vacía')),
-      );
-      return;
+      throw const EmptyNoteException();
     }
 
-    final note = Note(
-      title: state.title.isEmpty ? 'Sin título' : state.title,
-      content: state.content,
-    );
+    final note = state.toNote();
+    final repository = ref.read(noteRepositoryProvider);
+    if (state.id == null) {
+      await repository.insertNote(note);
+    } else {
+      await repository.updateNote(note);
+    }
 
-    // TODO: Guardar la nota en la base de datos local (sqflite o hive)
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Nota guardada (placeholder)')),
-    );
+    // Invalidar la lista de notas para refrescar
+    ref.invalidate(notesListProvider);
 
-    Navigator.pop(context, note);
-  }
-
-  void initializeControllers() {
-    final controllers = ref.read(controllersProvider);
-    controllers.titleController.addListener(() {
-      updateTitle(controllers.titleController.text);
-    });
-    controllers.quillController.addListener(() {
-      updateContent(controllers.quillController.document);
-    });
-  }
-
-  @override
-  void dispose() {
-    // Los controladores se manejan en controllersProvider
-    super.dispose();
+    return note;
   }
 }
 
-final noteProvider = StateNotifierProvider<NoteNotifier, NoteState>((ref) {
-  final notifier = NoteNotifier(ref);
-  notifier.initializeControllers();
-  return notifier;
-});
+class EmptyNoteException implements Exception {
+  const EmptyNoteException();
+  @override
+  String toString() => 'La nota está vacía';
+}

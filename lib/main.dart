@@ -18,7 +18,7 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
-    return MaterialApp(
+    return CupertinoApp(
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
